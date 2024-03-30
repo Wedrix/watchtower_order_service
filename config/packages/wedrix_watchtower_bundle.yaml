@@ -1,0 +1,9 @@
+wedrix_watchtower:
+    endpoint: '%graphql.endpoint%'
+    schema_file: '%graphql.schema_file%'
+    plugins_directory: '%graphql.plugins_directory%'
+    scalar_type_definitions_directory: '%graphql.scalar_type_definitions_directory%'
+    cache_directory: '%graphql.cache_directory%'
+    optimize: '%graphql.optimize%'
+    debug: '%graphql.debug%'
+    context: '%graphql.context%'

@@ -1,0 +1,63 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    app.domain: '%env(APP_DOMAIN)%'
+    auth.token_header: '%env(AUTH_TOKEN_HEADER)%'
+    auth.token_signing_key: '%env(AUTH_TOKEN_SIGNING_KEY)%'
+    auth.token_signing_algorithm: '%env(AUTH_TOKEN_SIGNING_ALGORITHM)%'
+    auth.token_ttl_minutes: '%env(int:AUTH_TOKEN_TTL_MINUTES)%'
+
+    graphql.endpoint: '/graphql.json'
+    graphql.schema_file: '%kernel.project_dir%/config/graphql/schema.graphql'
+    graphql.plugins_directory: '%kernel.project_dir%/config/graphql/plugins'
+    graphql.scalar_type_definitions_directory: '%kernel.project_dir%/config/graphql/scalar_type_definitions'
+    graphql.cache_directory: '%kernel.project_dir%/var/cache/graphql'
+    graphql.optimize: false
+    graphql.debug: '%kernel.debug%'
+    graphql.context:
+        # Register services here to access them in the context param.
+        # The service key can be any name of your choosing but the value should be the service id.
+        # For example: entity_manager: 'doctrine.orm.entity_manager'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/DataType/'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+    App\ConnectionFactory:
+        decorates: 'doctrine.dbal.connection_factory'
+
+    App\EntityManager:
+        decorates: 'doctrine.orm.default_entity_manager'
+
+    Wedrix\Watchtower\Executor:
+        class: App\WatchtowerExecutor
+        arguments: 
+            $schemaFile: '%graphql.schema_file%'
+            $pluginsDirectory: '%graphql.plugins_directory%'
+            $scalarTypeDefinitionsDirectory: '%graphql.scalar_type_definitions_directory%'
+            $cacheDirectory: '%graphql.cache_directory%'
+            $optimize: '%graphql.optimize%'
+
+    Wedrix\WatchtowerBundle\Controller\WatchtowerController:
+        class: App\Controller\GraphQLController
+
+    app.user_service:
+        alias: App\Service\UserService
+        public: true

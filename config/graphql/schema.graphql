@@ -1,0 +1,140 @@
+scalar Limit
+scalar Page
+scalar EmailAddress
+scalar Name
+scalar Password
+scalar Price
+scalar ProductName
+scalar Role
+scalar Stock
+
+type Query {
+  product(id: ID!): Product!
+  products(queryParams: ProductsQueryParams): [Product!]!
+  order(id: ID!): Order!
+  orders(queryParams: OrdersQueryParams): [Order!]!
+  user(id: ID!): User!
+  users(queryParams: UsersQueryParams): [User!]!
+  productLine(product: ID!, order: ID!): ProductLine!
+  productLines(queryParams: ProductLinesQueryParams): [ProductLine!]!
+}
+
+type Mutation {
+  signUp(
+    name: Name!
+    email: EmailAddress!
+    password: Password!
+    role: Role!
+  ): User!
+  signIn(
+    email: EmailAddress!
+    password: Password!
+  ): User!
+  signOut: Boolean!
+  createUser(
+    name: Name!
+    email: EmailAddress!
+    password: Password!
+    role: Role!
+  ): User!
+  updateUser(
+    userId: ID!
+    name: Name
+    email: EmailAddress
+    password: Password
+    role: Role
+  ): User!
+  deleteUser(
+    userId: ID!
+  ): Boolean!
+  createProduct(
+    name: ProductName!
+    stock: Stock!
+    price: Price!
+  ): Product!
+  updateProduct(
+    productId: ID!
+    name: ProductName
+    stock: Stock
+    price: Price
+  ): Product!
+  deleteProduct(
+    productId: ID!
+  ): Boolean!
+  createOrder(
+    userId: ID!
+    productLines: [ProductLineParam!]!
+  ): Order!
+  updateOrder(
+    orderId: ID!
+    userId: ID
+    productLines: [ProductLineParam!]
+  ): Order!
+  deleteOrder(
+    orderId: ID!
+  ): Boolean!
+}
+
+type Order {
+  id: ID!
+  user: User!
+  productLines(queryParams: ProductLinesQueryParams): [ProductLine!]!
+}
+
+input OrdersQueryParams {
+  limit: Limit
+  page: Page
+}
+
+type Product {
+  id: ID!
+  name: ProductName!
+  stock: Stock!
+  price: Price!
+  isLowOnStock: Boolean!
+  productLines(queryParams: ProductLinesQueryParams): [ProductLine!]!
+}
+
+type ProductLine {
+  quantity: Int!
+  product: Product!
+  order: Order!
+}
+
+input ProductLinesQueryParams {
+  limit: Limit
+  page: Page
+}
+
+input ProductsQueryParams {
+  limit: Limit
+  page: Page
+  filters: ProductsQueryFiltersParam
+}
+
+input ProductsQueryFiltersParam {
+  isLowOnStock: Boolean
+}
+
+type User {
+  id: ID!
+  name: Name!
+  email: EmailAddress!
+  role: Role!
+  orders(queryParams: OrdersQueryParams): [Order!]!
+}
+
+input UsersQueryParams {
+  limit: Limit
+  page: Page
+  filters: UsersQueryFiltersParam
+}
+
+input UsersQueryFiltersParam {
+  role: Role
+}
+
+input ProductLineParam {
+  productId: ID!
+  quantity: Int!
+}
